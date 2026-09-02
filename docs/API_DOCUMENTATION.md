@@ -204,6 +204,18 @@ GET /products/{product_id}
 
 Only active products are returned publicly.
 
+### List My Products
+
+```http
+GET /my-products
+Authorization: ******
+```
+
+Returns only products created by the authenticated user. Unlike the public
+`/products` endpoint, this endpoint also includes frozen products so the user
+can manage their own listings. Updating, freezing, and deleting a product is
+also restricted to its owner.
+
 ### Create Product
 
 ```http
