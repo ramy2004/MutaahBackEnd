@@ -38,6 +38,52 @@ class ProductOwnershipTest extends TestCase
             ->assertJsonMissing(['id' => (string) $otherProduct->id]);
     }
 
+    public function test_freezing_product_hides_it_from_public_list_without_deleting_it(): void
+    {
+        $plan = SubscriptionPlan::create([
+            'id' => Str::uuid(),
+            'plan_type' => 'standard',
+            'price' => 0,
+            'max_listings_per_month' => 10,
+            'max_rentals_per_month' => 10,
+            'commission_rate' => 10,
+            'has_detailed_reports' => false,
+        ]);
+        $owner = $this->user('freeze_owner', $plan->id);
+        $product = $this->product($owner, 'Product to freeze', 'active');
+
+        $this->actingAs($owner, 'sanctum')
+            ->postJson("/api/v1/products/{$product->id}/toggle-status")
+            ->assertOk()
+            ->assertJsonPath('data.status', 'frozen')
+            ->assertJsonPath('data.is_available', false);
+
+        $this->assertDatabaseHas('Products', [
+            'id' => $product->id,
+            'status' => 'frozen',
+        ]);
+
+        $this->getJson('/api/v1/products')
+            ->assertOk()
+            ->assertJsonMissing(['id' => (string) $product->id]);
+
+        $this->actingAs($owner, 'sanctum')
+            ->getJson('/api/v1/my-products')
+            ->assertOk()
+            ->assertJsonPath('data.0.id', (string) $product->id);
+
+        $this->actingAs($owner, 'sanctum')
+            ->postJson("/api/v1/products/{$product->id}/toggle-status")
+            ->assertOk()
+            ->assertJsonPath('data.status', 'active')
+            ->assertJsonPath('data.is_available', true);
+
+        $this->assertDatabaseHas('Products', [
+            'id' => $product->id,
+            'status' => 'active',
+        ]);
+    }
+
     private function user(string $username, string $planId): User
     {
         return User::create([
