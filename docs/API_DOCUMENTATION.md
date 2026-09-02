@@ -258,7 +258,9 @@ POST /products/{product_id}/toggle-status
 Authorization: Bearer ACCESS_TOKEN
 ```
 
-Toggles the product between `active` and `frozen`.
+Toggles the product between `active` and `frozen`. A frozen product is hidden
+from the public products list, but is not deleted and remains available through
+the authenticated user's `/my-products` endpoint.
 
 ### Delete Product
 
