@@ -30,6 +30,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/profile', [ProfileController::class, 'show']);
         Route::post('/profile', [ProfileController::class, 'update']);
+        Route::get('/my-products', [ProductController::class, 'myProducts']);
         Route::post('/products', [ProductController::class, 'store']);
         Route::match(['put', 'post'], '/products/{product}', [ProductController::class, 'update']);
         Route::post('/products/{product}/toggle-status', [ProductController::class, 'toggleStatus']);

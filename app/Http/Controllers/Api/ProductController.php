@@ -38,6 +38,17 @@ class ProductController extends Controller
         return ProductResource::collection($products);
     }
 
+    // عرض منتجات المستخدم الحالي، بما فيها المنتجات المجمدة لإدارتها من صفحة الحساب
+    public function myProducts(Request $request)
+    {
+        $products = Product::with('owner')
+            ->where('owner_id', $request->user()->id)
+            ->latest()
+            ->paginate(12);
+
+        return ProductResource::collection($products);
+    }
+
     public function show(string $id): ProductResource
     {
         $product = Product::with('owner')
